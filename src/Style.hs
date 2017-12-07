@@ -96,15 +96,45 @@ main = printCss lightTheme False $ \theme -> do
                 fontSize (px 34)
                 fontWeight bold
 
+                ".small-header" & fontSize (px 23)
+
             nav ? do
                 marginLeft (em 2)
 
-            a ? do
-                color (linkColor theme)
-                fontWeight bold
-                textDecoration none
+                a ? do
+                    color (linkColor theme)
+                    fontWeight bold
+                    textDecoration none
 
-                hover & textDecoration underline
+                    hover & textDecoration underline
+
+                span # "#projects-dropdown" ? do
+                    position relative
+                    display inlineBlock
+                    cursor pointer
+                    color (linkColor theme)
+
+                    "#dropdown-items" ? do
+                        opacity 0
+                        overflow hidden
+                        position absolute
+                        top (pct 100)
+                        right (px (-5))
+                        width (px 0)
+                        backgroundColor (containerBgColor theme)
+                        boxShadow (px 2) (px 5) (px 10) black
+                        transitions 
+                            [ ("opacity", sec 0.4, ease, sec 0)             
+                            , ("width", sec 0.2, ease, sec 0)      
+                            ]
+
+                        a ? do
+                            display block
+                            textAlign center
+
+                    hover & "#dropdown-items" ? do 
+                        width (px 120)
+                        opacity 100
         
         a ? do
             color (linkColor theme)
@@ -124,9 +154,17 @@ main = printCss lightTheme False $ \theme -> do
 
         span # ".no-space" ? fontSize (px 0)
         
-        (h1 <> h2 <> h3 <> h4 <> h5 <> h6) ? color (highlightColor theme)
+        (h1 <> h2 <> h3 <> h4 <> h5 <> h6) ? do 
+            color (highlightColor theme)
+            fontWeight normal
         
-        h1 ? fontSize (px 26)
+        h1 ? fontSize (px 30)
+
+        (h1 # ".post-title" <> h1 # ".page-title") ? do
+            fontSize (px 50)
+            color black
+            fontWeight bold
+            margin (em 0.2) (em 0) (em 0) (em 0)
         
         h2 ? fontSize (px 24)
 

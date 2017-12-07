@@ -1,9 +1,23 @@
 ---
-title: Contact
+title: CodeTest
 ---
 
 I live in a small hut in the mountains of Kumano Kodō on Kii Hantō and would not
 like to be contacted.
+
+<input type="text">
+
+```bash
+#!/bin/bash
+
+function log {
+    while [ ! mkdir dingo.lock ]; do
+        :
+    done
+
+    echo "WOWEE" > rando.txt
+}
+```
 
 ```haskell
 module Main (main, taco) where

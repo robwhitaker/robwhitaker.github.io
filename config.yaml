@@ -1,0 +1,7 @@
+---
+staticPageDir: static/pages/
+stripPrefixDirs:
+    - static/pages/
+ignoredPages:
+    - index.html
+...

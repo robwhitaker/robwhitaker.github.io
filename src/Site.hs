@@ -1,37 +1,53 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ImplicitParams #-}
+
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.Char (toLower)
-import           System.FilePath (takeFileName, (</>))
+import           System.FilePath (takeDirectory, takeFileName, (</>))
+import           System.Directory (getDirectoryContents, doesFileExist)
+import           System.IO (hSetEncoding, stdout, utf8)
+import           Control.Monad (filterM)
 
+import           Site.Routes
+import           Site.Config
+import           Site.URL
 --------------------------------------------------------------------------------
 main :: IO ()
 main = do 
-    putStrLn "WOW!"
+    hSetEncoding stdout utf8
+    c <- readConfig
+    let ?config = c
+    pages <- (map $ (</>) (staticPageDir ?config)) 
+                <$> getDirectoryContents (staticPageDir ?config)
+             >>= return . filter (not . flip elem (ignoredPages ?config) . takeFileName)
+             >>= filterM doesFileExist
     hakyll $ do
         match "static/img/*" $ do
             route   idRoute
             compile copyFileCompiler
 
         match "src/Style.hs" $ do
-            route   $ (setExtension "css") `composeRoutes` (customRoute $ ((</>) "styles" . map toLower . takeFileName . toFilePath))
+            route   $ (setExtension "css") `composeRoutes` 
+                      (customRoute $ ((</>) "styles" . map toLower . takeFileName .
+                                     toFilePath))
             compile $ getResourceString >>= withItemBody (unixFilter "stack runghc" [])
 
-        match (fromList $ map (fromFilePath . ("static/pages/"++) . toFilePath) ["about.rst", "contact.markdown"]) $ do
-            route   $ composeRoutes (setExtension "html") (customRoute $ takeFileName . toFilePath)
+        match (fromList $ map fromFilePath pages) $ do
+            route   $ megaRoute
             compile $ pandocCompiler
                 >>= loadAndApplyTemplate "templates/default.html" defaultContext
-                >>= relativizeUrls
+                >>= cleanupUrls
 
         match "posts/*" $ do
-            route $ setExtension "html"
+            route $ megaRoute
             compile $ pandocCompiler
                 >>= loadAndApplyTemplate "templates/post.html"    postCtx
                 >>= loadAndApplyTemplate "templates/default.html" postCtx
-                >>= relativizeUrls
+                >>= cleanupUrls
 
-        create ["archive.html"] $ do
+        create ["blog/index.html"] $ do
             route idRoute
             compile $ do
                 posts <- recentFirst =<< loadAll "posts/*"
@@ -43,11 +59,11 @@ main = do
                 makeItem ""
                     >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
                     >>= loadAndApplyTemplate "templates/default.html" archiveCtx
-                    >>= relativizeUrls
+                    >>= cleanupUrls
 
 
         match "static/pages/index.html" $ do
-            route (customRoute $ takeFileName . toFilePath)
+            route   $ megaRoute
             compile $ do
                 posts <- recentFirst =<< loadAll "posts/*"
                 let indexCtx =
@@ -58,13 +74,13 @@ main = do
                 getResourceBody
                     >>= applyAsTemplate indexCtx
                     >>= loadAndApplyTemplate "templates/default.html" indexCtx
-                    >>= relativizeUrls
+                    >>= cleanupUrls
 
         match "templates/*" $ compile templateBodyCompiler
-
 
 --------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
+    constField "isPost" "true" `mappend`
     defaultContext
