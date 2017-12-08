@@ -7,7 +7,7 @@ module Site.Config
 
 import qualified Data.Yaml as Y
 import           Control.Exception (throwIO)
-import           System.FilePath (FilePath)
+import           System.FilePath.Posix (FilePath)
 import           Data.Aeson (FromJSON)
 import           GHC.Generics
 

@@ -5,9 +5,9 @@
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.Char (toLower)
-import           System.FilePath (takeDirectory, takeFileName, (</>))
+import           System.FilePath.Posix (takeDirectory, takeFileName, (</>))
 import           System.Directory (getDirectoryContents, doesFileExist)
-import           System.IO (hSetEncoding, stdout, utf8)
+import qualified GHC.IO.Encoding as E
 import           Control.Monad (filterM)
 
 import           Site.Routes
@@ -16,7 +16,7 @@ import           Site.URL
 --------------------------------------------------------------------------------
 main :: IO ()
 main = do 
-    hSetEncoding stdout utf8
+    E.setLocaleEncoding E.utf8
     c <- readConfig
     let ?config = c
     pages <- (map $ (</>) (staticPageDir ?config)) 
@@ -36,9 +36,17 @@ main = do
 
         match (fromList $ map fromFilePath pages) $ do
             route   $ megaRoute
-            compile $ pandocCompiler
-                >>= loadAndApplyTemplate "templates/default.html" defaultContext
-                >>= cleanupUrls
+            compile $ do
+                    ext <- getUnderlyingExtension
+                    let compiler = 
+                            case ext of
+                                ".html" -> getResourceBody
+                                _       -> pandocCompiler
+                    
+                    compiler
+                        >>= applyAsTemplate defaultContext
+                        >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                        >>= cleanupUrls
 
         match "posts/*" $ do
             route $ megaRoute

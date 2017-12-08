@@ -5,7 +5,7 @@ module Site.Routes where
 
 import           Hakyll
 import           Site.Config
-import           System.FilePath (takeDirectory, takeBaseName, (</>))
+import           System.FilePath.Posix (takeDirectory, takeBaseName, (</>))
 import           Data.List (isPrefixOf)
 
 prettyRoute :: Routes
