@@ -4,7 +4,7 @@ module Main where
 
 import           Prelude hiding (div, span)
 import           Clay
-import           Data.Monoid ((<>), mconcat)
+import           Data.Monoid ((<>))
 import qualified Data.Text.Lazy.IO as T
 
 data Theme = Theme

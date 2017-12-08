@@ -5,10 +5,8 @@
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.Char (toLower)
-import           System.FilePath.Posix (takeDirectory, takeFileName, (</>))
-import           System.Directory (getDirectoryContents, doesFileExist)
+import           System.FilePath.Posix (takeFileName, (</>))
 import qualified GHC.IO.Encoding as E
-import           Control.Monad (filterM)
 
 import           Site.Routes
 import           Site.Config
@@ -19,10 +17,6 @@ main = do
     E.setLocaleEncoding E.utf8
     c <- readConfig
     let ?config = c
-    pages <- (map $ (</>) (staticPageDir ?config)) 
-                <$> getDirectoryContents (staticPageDir ?config)
-             >>= return . filter (not . flip elem (ignoredPages ?config) . takeFileName)
-             >>= filterM doesFileExist
     hakyll $ do
         match "static/img/*" $ do
             route   idRoute
@@ -34,7 +28,9 @@ main = do
                                      toFilePath))
             compile $ getResourceString >>= withItemBody (unixFilter "stack runghc" [])
 
-        match (fromList $ map fromFilePath pages) $ do
+        let pagesPattern = foldl (.&&.) (fromGlob (staticPageDir ?config </> "**")) 
+                                $ complement . fromGlob . (</>) (staticPageDir ?config) <$> ignoredPages ?config                       
+        match pagesPattern $ do
             route   $ megaRoute
             compile $ do
                     ext <- getUnderlyingExtension
@@ -61,7 +57,7 @@ main = do
                 posts <- recentFirst =<< loadAll "posts/*"
                 let archiveCtx =
                         listField "posts" postCtx (return posts) `mappend`
-                        constField "title" "Archives"            `mappend`
+                        constField "title" "Blog"                `mappend`
                         defaultContext
 
                 makeItem ""
