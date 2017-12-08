@@ -4,6 +4,7 @@ module Main where
 
 import           Prelude hiding (div, span)
 import           Clay
+import qualified Clay.Flexbox as FB
 import           Data.Monoid ((<>))
 import qualified Data.Text.Lazy.IO as T
 
@@ -39,7 +40,7 @@ lightTheme = Theme
     , linkColor        = darkred
     , highlightColor   = cornflowerblue
     , mainTextColor    = black
-    , dividerColor     = rgb 100 100 100
+    , dividerColor     = rgb 175 175 175
     , codeTheme = CodeTheme
         { bgColor   = rgb 50 50 50
         , kwColor   = deeppink
@@ -151,6 +152,7 @@ main = printCss lightTheme False $ \theme -> do
             padding (em 0.5) (em 0.5) (em 0.5) (em 0.5)
             textAlign center
             fontSize (px 14)
+            clear both
 
         span # ".no-space" ? fontSize (px 0)
         
@@ -167,6 +169,42 @@ main = printCss lightTheme False $ \theme -> do
             margin (em 0.2) (em 0) (em 0) (em 0)
         
         h2 ? fontSize (px 24)
+
+        -- FLEXY THINGS
+
+        ".flex-container" ? do
+            display flex
+            flexWrap FB.wrap
+            justifyContent spaceAround
+            alignContent flexStart
+
+        ".flex-container" |> star ? do
+            FB.flex 1 1 (px 0) 
+            margin auto (em 0.5) auto (em 0.5)
+
+            form ? do
+                marginTop (px 20)
+
+                (input <> textarea <> button) ? do
+                    padding (px 10) (px 10) (px 10) (px 10)
+                    fontSize (px 20)
+                    display block
+                    width (pct 100)
+                    marginTop (px 7)
+                    border solid (px 1) (dividerColor theme)
+                
+                textarea ? do
+                    minHeight (px 150)
+
+                button ? do
+                    background transparent
+                    border solid (px 2) (highlightColor theme)
+                    color (highlightColor theme)
+                    fontWeight bold
+                    cursor pointer
+                    transition "background" (ms 200) ease (ms 0)
+
+                    hover & background (lighten 0.7 $ highlightColor theme)
 
         -- CODE HIGHLIGHTING
         let cTheme = codeTheme theme    
