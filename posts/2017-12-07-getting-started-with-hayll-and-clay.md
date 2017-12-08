@@ -110,3 +110,7 @@ vs
 The forward slash version would get me the page, but it wouldn't be able to reference the stylesheet properly, and besides, why should I even have `%5C` in my URLs anyway? Where did I go wrong?
 
 Well, after looking up `%5C` and realizing it was an escaped backslash, it dawned on me. I was joining together some URLs (or identifiers, in Hakyll-speak) with the `(</>)` operator from `System.FilePath`. The issue here is that I'm on a Windows machine (eww, Windows dev, I know) and that the version of `System.FilePath` I was getting was the Windows one. I changed my imports to `System.FilePath.Posix`, and boom, now I have nice, properly functioning, URLs.
+
+## Contact page (End)
+
+Contact page is finished and working with form.
