@@ -154,6 +154,20 @@ main = printCss lightTheme False $ \theme -> do
             fontSize (px 14)
             clear both
 
+            a |> i ? do
+                color (mainTextColor theme)
+                fontSize (px 18)
+                cursor pointer
+
+            a # ".ello-icon" ? do
+                backgroundImage $ url "../static/img/ello-icon.svg"
+                backgroundSize contain
+                backgroundRepeat noRepeat
+                backgroundPosition $ placed sideCenter sideCenter
+                
+                i ? visibility hidden
+
+
         span # ".no-space" ? fontSize (px 0)
         
         (h1 <> h2 <> h3 <> h4 <> h5 <> h6) ? do 
