@@ -8,7 +8,6 @@ import           Data.Char (toLower)
 import           System.FilePath.Posix ((</>))
 import           System.FilePath (replaceExtension, takeDirectory, takeFileName)
 import qualified GHC.IO.Encoding as E
-import qualified Text.Pandoc as Pandoc
 import qualified System.Process as Process
 
 import           Site.Routes
@@ -25,11 +24,9 @@ main = do
             route   idRoute
             compile copyFileCompiler
 
-        match "src/Style.hs" $ do
-            route   $ (setExtension "css") `composeRoutes` 
-                      (customRoute $ ((</>) "styles" . map toLower . takeFileName .
-                                     toFilePath))
-            compile $ getResourceString >>= withItemBody (unixFilter "stack runghc" [])
+        match "style/**" $ do
+            route   $ constRoute "styles/style.css"
+            compile $ unixFilter "stack runghc" ["--cwd", "style", "Style.hs" ] "" >>= makeItem
 
         let pagesPattern = foldl (.&&.) (fromGlob (staticPageDir ?config </> "**")) 
                                 $ complement . fromGlob . (</>) (staticPageDir ?config) <$> ignoredPages ?config                       
