@@ -5,8 +5,11 @@
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.Char (toLower)
-import           System.FilePath.Posix (takeFileName, (</>))
+import           System.FilePath.Posix ((</>))
+import           System.FilePath (replaceExtension, takeDirectory, takeFileName)
 import qualified GHC.IO.Encoding as E
+import qualified Text.Pandoc as Pandoc
+import qualified System.Process as Process
 
 import           Site.Routes
 import           Site.Config
@@ -65,6 +68,9 @@ main = do
                     >>= loadAndApplyTemplate "templates/default.html" archiveCtx
                     >>= cleanupUrls
 
+        match "static/resume/resume.tex" $ do
+            route   $ constRoute "downloads/robertjwhitaker-resume.pdf"
+            compile $ xelatex
 
         match "static/pages/index.html" $ do
             route   $ megaRoute
@@ -88,3 +94,29 @@ postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     constField "isPost" "true" `mappend`
     defaultContext
+
+---------------------------------------------------------------------------------
+
+-- A compiler for tex files based on https://github.com/jaspervdj/jaspervdj/blob/master/src/Main.hs#L261-L275
+xelatex :: Compiler (Item TmpFile)
+xelatex = do 
+    texFilePath <- toFilePath <$> getUnderlying
+    texContents <- itemBody <$> getResourceBody
+    TmpFile tmpTexPath <- newTmpFile "tmp-tex.tex"
+    let sourceDir = takeDirectory texFilePath
+        tmpDir    = takeDirectory tmpTexPath
+        pdfPath   = replaceExtension tmpTexPath "pdf"
+    
+    unsafeCompiler $ do
+        writeFile tmpTexPath texContents
+        _ <- Process.system $ unwords 
+            [ "xelatex"
+            , "-halt-on-error"
+            , "-output-directory", tmpDir
+            , "-include-directory", sourceDir
+            , tmpTexPath
+            , ">/dev/null", "2>&1"
+            ]
+        return ()
+    
+    makeItem $ TmpFile pdfPath

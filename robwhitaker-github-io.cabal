@@ -22,6 +22,8 @@ executable site
                   , directory
                   , yaml
                   , aeson
+                  , pandoc
+                  , process
   other-modules:    Site.Config
                   , Site.Routes
                   , Site.URL
