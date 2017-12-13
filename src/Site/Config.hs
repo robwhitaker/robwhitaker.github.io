@@ -12,7 +12,9 @@ import           Data.Aeson (FromJSON)
 import           GHC.Generics
 
 data Config = Config
-    { stripPrefixDirs :: [FilePath]
+    { styleDir :: FilePath
+    , styleMain :: FilePath
+    , stripPrefixDirs :: [FilePath]
     , staticPageDir :: FilePath
     , ignoredPages :: [FilePath]
     } deriving (Show, Generic)

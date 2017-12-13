@@ -11,10 +11,10 @@ css cTheme =
         backgroundColor (bgColor cTheme)
         color (textColor cTheme)
         padding (em 1) (em 1) (em 1) (em 1)
-        fontSize (px 18)
         overflow auto
         
         code ? do
+            fontSize (px 18)
             fontFamily ["Inconsolata"] [monospace]
 
             ".kw" ? color (kwColor cTheme)

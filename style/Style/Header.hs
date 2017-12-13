@@ -19,9 +19,12 @@ css theme =
             color (highlightColor theme)
             fontWeight bolder
         
-        ".name-logo" ? do
+        h1 # ".name-logo" ? do
             fontSize (px 34)
             fontWeight bold
+            color (mainTextColor theme)
+            display inlineBlock
+            margin (px 0) (px 0) (px 0) (px 0)
 
             query Media.screen [ Media.maxWidth (px 430) ] $ do
                     fontSize (px 26)

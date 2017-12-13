@@ -1,17 +1,9 @@
 ---
 title: About
 ---
-Nullam imperdiet sodales orci vitae molestie. Nunc quam orci, pharetra a
-rhoncus vitae, eleifend id felis. Suspendisse potenti. Etiam vitae urna orci.
-Quisque pellentesque dignissim felis, egestas tempus urna luctus vitae. In hac
-habitasse platea dictumst. Morbi fringilla mattis odio, et mattis tellus
-accumsan vitae.
 
-1. Amamus Unicode 碁
-2. Interdum nex magna.
+Hi! My name is Rob Whitaker, and I am a developer, writer, and musician currently employed as a software engineer at IBM. Previously I worked as a front-end web developer at a start-up called Unlockable. I love working with functional languages.
 
-Vivamus eget mauris sit amet nulla laoreet lobortis. Nulla in diam elementum
-risus convallis commodo. Cras vehicula varius dui vitae facilisis. Proin
-elementum libero eget leo aliquet quis euismod orci vestibulum. Duis rhoncus
-lorem consequat tellus vestibulum aliquam. Quisque orci orci, malesuada porta
-blandit et, interdum nec magna.
+I am always busy with a side project or seventeen at any given moment. These range from writing my interactive web serial novel, [Midnight Murder Party](), to developing a custom reader application in Elm (or a CMS in PureScript), to composing a waltz for an animation on my keyboard. Sometimes I take a break from my usual side projects to join a hackathon or a game jam or a 24-hour short story competition. In November, I write like a maniac for NaNoWriMo.
+
+I am also a fan of diners, pie, coffee, coffee and pie at diners, playing the piano and guitar, reading, gaming, listening to music, and sometimes longboarding.

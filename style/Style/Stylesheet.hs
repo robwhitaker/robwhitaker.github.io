@@ -35,6 +35,7 @@ stylesheet theme = do
         Header.css theme
         Footer.css theme 
         CodeHighlighting.css (codeTheme theme)
+        postList theme
 
         a ? do
             color (linkColor theme)
@@ -47,12 +48,18 @@ stylesheet theme = do
 
         span # ".no-space" ? fontSize (px 0)
         span # ".no-br" ? whiteSpace nowrap
+        code ? fontSize (px 16)
         
         (h1 <> h2 <> h3 <> h4 <> h5 <> h6) ? do 
             color (highlightColor theme)
             fontWeight normal
+            margin (em 0.3) (em 0) (em 0.3) (em 0)
         
-        h1 ? fontSize (px 30)
+        h1 ? fontSize (px 36)
+        h2 ? do 
+            fontSize (px 32)
+            ".big" & fontSize (px 36)
+        h3 ? fontSize (px 28)
 
         (h1 # ".post-title" <> h1 # ".page-title") ? do
             fontSize (px 50)
@@ -60,7 +67,6 @@ stylesheet theme = do
             fontWeight bold
             margin (em 0.2) (em 0) (em 0) (em 0)
         
-        h2 ? fontSize (px 24)
 
         -- FLEXY THINGS
 
@@ -97,3 +103,17 @@ stylesheet theme = do
                     transition "background" (ms 200) ease (ms 0)
 
                     hover & background (lighten 0.7 $ highlightColor theme)
+
+postList :: Theme -> Css
+postList theme = 
+    ul # ".post-list" ? do
+        listStyleType none
+        paddingLeft (px 0)
+
+        li ? do
+            margin (em 1) (em 0) (em 1) (em 0)
+
+            a # ".post-title" ? fontSize (px 28)
+
+            div # ".post-info" ? fontStyle italic
+

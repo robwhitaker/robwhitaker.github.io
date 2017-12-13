@@ -24,9 +24,9 @@ main = do
             route   idRoute
             compile copyFileCompiler
 
-        match "style/**" $ do
+        match (fromGlob (styleDir ?config </> "**")) $ do
             route   $ constRoute "styles/style.css"
-            compile $ unixFilter "stack runghc" ["--cwd", "style", "Style.hs" ] "" >>= makeItem
+            compile $ unixFilter "stack runghc" ["--cwd", styleDir ?config, styleMain ?config ] "" >>= makeItem
 
         let pagesPattern = foldl (.&&.) (fromGlob (staticPageDir ?config </> "**")) 
                                 $ complement . fromGlob . (</>) (staticPageDir ?config) <$> ignoredPages ?config                       

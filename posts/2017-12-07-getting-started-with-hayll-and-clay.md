@@ -4,17 +4,17 @@ title: Getting Started With Hakyll and Clay
 
 Guess I'll take notes... in post form!
 
-# Day 1. Compiling CSS
+## Day 1. Compiling CSS
 
 TL;DR - `stack runghc`, which is recommended to quickly compile Clay, does NOT pay attention to the .cabal file, meaning, unless you're code is in the root directory of the project, it's not about to find your modules. Temporary solution: keep all Clay source in one file, which `runghc` can remarkably figure out.
 
-# Day 2. Contact Form Disaster and Terminal Nightmares
+## Day 2. Contact Form Disaster and Terminal Nightmares
 
-## The contact form
+### The contact form
 
 Contact form, contained in `contact.html` and being compiled in the same way as all the other pages, looks great. Except, not really because it doesn't _look_ like anything at all. For some reason, forms are not appearing---everything else is, just not forms... contact forms. The kicker? The forms will appear on any other page, but on this one, they are just not compiled into the project. So, better try to make a new file and see if forms will work there...
 
-## Making another file
+### Making another file
 
 ```
 $ touch static/pages/testfile.html
@@ -29,7 +29,7 @@ Wondering whether it had to do with the order the file was being produced in by 
 
 Well, if that's working, then surely...
 
-## The return to contact
+### The return to contact
 
 Nope.
 
@@ -37,7 +37,7 @@ Still no form. But this time I had an idea: I changed the file type to .md, and 
 
 I'll have to see if I did anything weird later.
 
-## Oh good...
+### Oh good...
 
 Now I'm getting the commitBuffer message for this file. It's breaking on punctuation... like this line would have already broken it twice.
 
@@ -57,9 +57,9 @@ Sometimes that helps. Not this time. Now I'm upgrading Stack... my version is pr
 
 And after updating Stack to the most recent version (this was a many hour process of trying to get `stack upgrade` to work and then just downloading a new .exe which worked immediately---*sigh*)... it still doesn't work. End Day 2.
 
-# Day 3. It works
+## Day 3. It works
 
-## commitBuffer: invalid argument (invalid character) REDUX
+### commitBuffer: invalid argument (invalid character) REDUX
 
 After some less half-asleep searching, I found the answer issue almost immediately [on the Hakyll website](https://jaspervdj.be/hakyll/tutorials/faq.html#hgetcontents-invalid-argument-or-commitbuffer-invalid-argument). The issue was that Hakyll couldn't write from a UTF-8 encoded file (which is how my VSCode is set to write), so I was on the write track yesterday, just the wrong module, I guess.
 
@@ -75,7 +75,7 @@ main = do
 
 Yeah, that's it. There were some other solutions for Windows or Unix, but this one seemed the most portable.
 
-## Back to the contact page
+### Back to the contact page
 
 As the FAQ linked above recommends, if Pandoc is eating your HTML, you can try to use the `getResourceBody` compiler. Well, I have it switching over to that now for HTML pages, and it no longer replaces variables in the page. As described, it returns the resource body and doesn't touch your page, which is... not ideal.
 
@@ -97,7 +97,7 @@ compile $ do
 
 Now our variables are showing up, but more importantly, so is our form! Huzzah!
 
-## A strange little URL issue
+### A strange little URL issue
 
 I noticed a lot of my URLs had this strange character in them (`%5C`) where a forward slash should be. It didn't seem to mess up the site, but it sure made my URLs look ugly!
 
@@ -111,6 +111,6 @@ The forward slash version would get me the page, but it wouldn't be able to refe
 
 Well, after looking up `%5C` and realizing it was an escaped backslash, it dawned on me. I was joining together some URLs (or identifiers, in Hakyll-speak) with the `(</>)` operator from `System.FilePath`. The issue here is that I'm on a Windows machine (eww, Windows dev, I know) and that the version of `System.FilePath` I was getting was the Windows one. I changed my imports to `System.FilePath.Posix`, and boom, now I have nice, properly functioning, URLs.
 
-## Contact page (End)
+### Contact page (End)
 
 Contact page is finished and working with form.
