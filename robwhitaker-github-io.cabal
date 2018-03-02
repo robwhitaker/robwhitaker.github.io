@@ -23,9 +23,12 @@ executable site
                   , yaml
                   , aeson
                   , process
+                  , pandoc
+                  , pandoc-types
   other-modules:    Site.Config
                   , Site.Routes
                   , Site.URL
+                  , Site.Pandoc
   ghc-options:      -threaded
   default-language: Haskell2010
 

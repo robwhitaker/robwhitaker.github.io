@@ -13,6 +13,7 @@ import qualified System.Process as Process
 import           Site.Routes
 import           Site.Config
 import           Site.URL
+import           Site.Pandoc
 --------------------------------------------------------------------------------
 main :: IO ()
 main = do 
@@ -37,7 +38,7 @@ main = do
                     let compiler = 
                             case ext of
                                 ".html" -> getResourceBody
-                                _       -> pandocCompiler
+                                _       -> customPandocCompiler
                     
                     compiler
                         >>= applyAsTemplate defaultContext
@@ -46,7 +47,7 @@ main = do
 
         match "posts/*" $ do
             route $ megaRoute
-            compile $ pandocCompiler
+            compile $ customPandocCompiler
                 >>= loadAndApplyTemplate "templates/post.html"    postCtx
                 >>= loadAndApplyTemplate "templates/default.html" postCtx
                 >>= cleanupUrls

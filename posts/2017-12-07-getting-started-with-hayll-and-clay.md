@@ -63,6 +63,8 @@ And after updating Stack to the most recent version (this was a many hour proces
 
 After some less half-asleep searching, I found the answer issue almost immediately [on the Hakyll website](https://jaspervdj.be/hakyll/tutorials/faq.html#hgetcontents-invalid-argument-or-commitbuffer-invalid-argument). The issue was that Hakyll couldn't write from a UTF-8 encoded file (which is how my VSCode is set to write), so I was on the write track yesterday, just the wrong module, I guess.
 
+[Local link test.](/)
+
 ```haskell
 import qualified GHC.IO.Encoding as E
 
@@ -114,3 +116,15 @@ Well, after looking up `%5C` and realizing it was an escaped backslash, it dawne
 ### Contact page (End)
 
 Contact page is finished and working with form.
+
+## Other Stuff
+
+### Clay & Hakyll
+
+`--cwd` flag for multiple files.
+
+### Automatically make external links open in new tab
+
+`pandocCompilerWithTransform` + `walk` + `Inline -> Inline`
+
+https://pandoc.org/filters.html
