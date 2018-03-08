@@ -11,13 +11,7 @@ import           System.FilePath.Posix (FilePath)
 import           Data.Aeson (FromJSON)
 import           GHC.Generics
 
-data Config = Config
-    { styleDir :: FilePath
-    , styleMain :: FilePath
-    , stripPrefixDirs :: [FilePath]
-    , staticPageDir :: FilePath
-    , ignoredPages :: [FilePath]
-    } deriving (Show, Generic)
+data Config = Config deriving (Show, Generic)
 
 instance FromJSON Config
 

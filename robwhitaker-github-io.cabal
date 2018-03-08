@@ -26,9 +26,6 @@ executable site
                   , pandoc
                   , pandoc-types
   other-modules:    Site.Config
-                  , Site.Routes
-                  , Site.URL
-                  , Site.Pandoc
   ghc-options:      -threaded
   default-language: Haskell2010
 
@@ -39,10 +36,5 @@ executable style
                   , clay == 0.12.*
                   , text
   other-modules:    Style.Theme
-                  , Style.CodeHighlighting
-                  , Style.Footer
-                  , Style.Header
-                  , Style.Stylesheet
-                  , Style.Utils
   ghc-options:      -threaded
   default-language: Haskell2010

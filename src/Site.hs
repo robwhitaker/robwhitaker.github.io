@@ -1,44 +1,35 @@
---------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ImplicitParams #-}
 
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.Char (toLower)
-import           System.FilePath.Posix ((</>))
-import           System.FilePath (replaceExtension, takeDirectory, takeFileName)
+import           Data.List (isPrefixOf, isSuffixOf)
+import           System.FilePath.Posix (replaceExtension, takeDirectory, takeBaseName, takeFileName, (</>))
 import qualified GHC.IO.Encoding as E
 import qualified System.Process as Process
 
-import           Site.Routes
 import           Site.Config
-import           Site.URL
-import           Site.Pandoc
---------------------------------------------------------------------------------
+
 main :: IO ()
 main = do 
     E.setLocaleEncoding E.utf8
-    c <- readConfig
-    let ?config = c
     hakyll $ do
         match "static/img/*" $ do
             route   idRoute
             compile copyFileCompiler
 
-        match (fromGlob (styleDir ?config </> "**")) $ do
+        match "style/**" $ do
             route   $ constRoute "styles/style.css"
-            compile $ unixFilter "stack" ["runghc", "--cwd", styleDir ?config, styleMain ?config] "" >>= makeItem
+            compile $ unixFilter "stack" ["runghc", "--cwd", "style/", "Style.hs"] "" >>= makeItem
 
-        let pagesPattern = foldl (.&&.) (fromGlob (staticPageDir ?config </> "**")) 
-                                $ complement . fromGlob . (</>) (staticPageDir ?config) <$> ignoredPages ?config                       
-        match pagesPattern $ do
+        match "static/pages/**" $ do
             route   $ megaRoute
             compile $ do
                     ext <- getUnderlyingExtension
                     let compiler = 
                             case ext of
                                 ".html" -> getResourceBody
-                                _       -> customPandocCompiler
+                                _       -> pandocCompiler
                     
                     compiler
                         >>= applyAsTemplate defaultContext
@@ -47,54 +38,87 @@ main = do
 
         match "posts/*" $ do
             route $ megaRoute
-            compile $ customPandocCompiler
+            compile $ pandocCompiler
                 >>= loadAndApplyTemplate "templates/post.html"    postCtx
                 >>= loadAndApplyTemplate "templates/default.html" postCtx
                 >>= cleanupUrls
 
-        create ["blog/index.html"] $ do
-            route idRoute
-            compile $ do
-                posts <- recentFirst =<< loadAll "posts/*"
-                let archiveCtx =
-                        listField "posts" postCtx (return posts) `mappend`
-                        constField "title" "Blog"                `mappend`
-                        defaultContext
+        -- TODO: Uncomment once resume is added
+        -- match "static/resume/resume.tex" $ do
+        --     route   $ constRoute "downloads/robertjwhitaker-resume.pdf"
+        --     compile $ xelatex
 
-                makeItem ""
-                    >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
-                    >>= loadAndApplyTemplate "templates/default.html" archiveCtx
-                    >>= cleanupUrls
-
-        match "static/resume/resume.tex" $ do
-            route   $ constRoute "downloads/robertjwhitaker-resume.pdf"
-            compile $ xelatex
-
-        match "static/pages/index.html" $ do
-            route   $ megaRoute
+        create ["index.html"] $ do
+            route   $ idRoute
             compile $ do
                 posts <- recentFirst =<< loadAll "posts/*"
                 let indexCtx =
                         listField "posts" postCtx (return posts) `mappend`
                         constField "title" "Home"                `mappend`
+                        constField "isHome" "true"               `mappend` 
                         defaultContext
-
-                getResourceBody
-                    >>= applyAsTemplate indexCtx
+                
+                makeItem ""
+                    >>= loadAndApplyTemplate "templates/post-list.html" indexCtx
                     >>= loadAndApplyTemplate "templates/default.html" indexCtx
                     >>= cleanupUrls
 
         match "templates/*" $ compile templateBodyCompiler
 
---------------------------------------------------------------------------------
+---------- CONTEXTS -----------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     constField "isPost" "true" `mappend`
     defaultContext
 
----------------------------------------------------------------------------------
+----------- ROUTES ------------
+prettyRoute :: Routes
+prettyRoute = customRoute $ \ident ->
+    let path = toFilePath ident
+        baseName = takeBaseName path
+    in if baseName /= "index"
+            then takeDirectory path </> baseName </> "index.html"
+            else path
 
+stripParentDirsRoute :: [FilePath] -> Routes
+stripParentDirsRoute pDirs = customRoute $ \ident ->
+    let path = toFilePath ident
+    in case filter (`isPrefixOf` path) pDirs of
+        [] -> path
+        (x:_) -> drop (length x) path
+
+megaRoute :: Routes
+megaRoute =
+    stripParentDirsRoute ["static/pages/"] `composeRoutes`
+    prettyRoute
+
+------------ URLs -------------
+withInternalUrls :: (String -> String) -> String -> String
+withInternalUrls fn =
+    withUrls (\str -> if isExternal str then str else fn str)
+
+    
+cleanIndex :: String -> String
+cleanIndex url
+    | idx `isSuffixOf` url = take (length url - length idx) url
+    | otherwise            = url
+    where idx = "index.html"
+
+stripIndexUrls :: Item String -> Compiler (Item String)
+stripIndexUrls = return . fmap (withInternalUrls cleanIndex)
+
+cleanupUrls :: Item String -> Compiler (Item String)
+cleanupUrls item = return item
+        >>= stripIndexUrls
+        >>= relativizeUrls
+
+saveCleanUrlSnapshot :: Snapshot -> Item String -> Compiler (Item String)
+saveCleanUrlSnapshot snapshot item = do
+    saveSnapshot snapshot =<< stripIndexUrls item
+    return item
+
+---------- LATEX --------------
 -- A compiler for tex files based on https://github.com/jaspervdj/jaspervdj/blob/master/src/Main.hs#L261-L275
 xelatex :: Compiler (Item TmpFile)
 xelatex = do 

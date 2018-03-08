@@ -1,9 +1,2 @@
 ---
-styleDir: style/
-styleMain: Style.hs
-staticPageDir: static/pages/
-stripPrefixDirs:
-    - static/pages/
-ignoredPages:
-    - index.html
 ...
