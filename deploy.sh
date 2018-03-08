@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Quit on error
-set -e
-
 # Stash any uncommitted changes
 git stash
 
