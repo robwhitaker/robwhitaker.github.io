@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ImplicitParams #-}
 
 import           Data.Monoid (mappend)
 import           Hakyll
@@ -14,6 +15,15 @@ main :: IO ()
 main = do 
     E.setLocaleEncoding E.utf8
     hakyll $ do
+        cats <- buildCategories "posts/**" (fromCapture "category/*/index.html")
+        let ?categories = cats
+
+        tagsRules cats $ \cat pattern -> do
+            route idRoute
+            compile $ postListCompiler pattern "templates/category.html" $
+                        constField "title" cat `mappend`
+                        constField "isHome" "true"
+
         match "static/img/*" $ do
             route   idRoute
             compile copyFileCompiler
@@ -36,7 +46,7 @@ main = do
                         >>= loadAndApplyTemplate "templates/default.html" defaultContext
                         >>= cleanupUrls
 
-        match "posts/*" $ do
+        match "posts/**" $ do
             route $ megaRoute
             compile $ pandocCompiler
                 >>= loadAndApplyTemplate "templates/post.html"    postCtx
@@ -50,26 +60,32 @@ main = do
 
         create ["index.html"] $ do
             route   $ idRoute
-            compile $ do
-                posts <- recentFirst =<< loadAll "posts/*"
-                let indexCtx =
-                        listField "posts" postCtx (return posts) `mappend`
-                        constField "title" "Home"                `mappend`
-                        constField "isHome" "true"               `mappend` 
-                        defaultContext
-                
-                makeItem ""
-                    >>= loadAndApplyTemplate "templates/post-list.html" indexCtx
-                    >>= loadAndApplyTemplate "templates/default.html" indexCtx
-                    >>= cleanupUrls
+            compile $ postListCompiler "posts/**" "templates/post-list.html" $
+                        constField "title" "Home"  `mappend`
+                        constField "isHome" "true"
 
         match "templates/*" $ compile templateBodyCompiler
 
+
+--------- COMPILERS -----------
+postListCompiler pattern template ctxAddon = do
+    posts <- recentFirst =<< loadAll pattern
+    let ctx =
+            listField "posts" postCtx (return posts) `mappend`
+            ctxAddon                                 `mappend` 
+            defaultContext
+    
+    makeItem ""
+        >>= loadAndApplyTemplate template ctx
+        >>= loadAndApplyTemplate "templates/default.html" ctx
+        >>= cleanupUrls
+
 ---------- CONTEXTS -----------
-postCtx :: Context String
+postCtx :: (?categories :: Tags) => Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     constField "isPost" "true" `mappend`
+    categoryField "category" ?categories `mappend`
     defaultContext
 
 ----------- ROUTES ------------

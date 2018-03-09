@@ -2,9 +2,7 @@
     $for(posts)$
         <li>
             <a href="$url$" class="post-title">$title$</a> 
-            <div class="post-info">
-                $date$
-            </div>
+            $partial("templates/post-metadata.html")$
         </li>
     $endfor$
 </ul>

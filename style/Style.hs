@@ -66,17 +66,25 @@ stylesheet theme = do
             fontWeight normal
             margin (em 0.3) (em 0) (em 0.3) (em 0)
         
-        h1 ? fontSize (px 36)
+        h1 ? do
+            fontSize (px 36)
+        
         h2 ? do 
             fontSize (px 32)
             ".big" & fontSize (px 36)
         h3 ? fontSize (px 28)
-
+        
         (h1 # ".post-title" <> h1 # ".page-title") ? do
-            fontSize (px 50)
             color black
             fontWeight bold
             margin (em 0.2) (em 0) (em 0) (em 0)
+        
+        h1 # ".post-title" ? fontSize (px 50)
+
+        ".post-info" ? do
+            fontStyle italic
+            fontSize (px 17)
+            margin (em 0.25) (em 0) (em 1) (em 0)
 
 postList :: Theme -> Css
 postList theme = 
@@ -88,8 +96,6 @@ postList theme =
             margin (em 1) (em 0) (em 1) (em 0)
 
             a # ".post-title" ? fontSize (px 28)
-
-            div # ".post-info" ? fontStyle italic
 
 headerCss :: Theme -> Css
 headerCss theme = 
