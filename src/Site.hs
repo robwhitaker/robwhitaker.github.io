@@ -3,9 +3,8 @@
 
 import           Data.Monoid (mappend)
 import           Hakyll
-import           Data.Char (toLower)
 import           Data.List (isPrefixOf, isSuffixOf)
-import           System.FilePath.Posix (replaceExtension, takeDirectory, takeBaseName, takeFileName, (</>))
+import           System.FilePath.Posix (replaceExtension, takeDirectory, takeBaseName, (</>))
 import qualified GHC.IO.Encoding as E
 import qualified System.Process as Process
 
@@ -68,6 +67,7 @@ main = do
 
 
 --------- COMPILERS -----------
+postListCompiler :: (?categories :: Tags) => Pattern -> Identifier -> Context String -> Compiler (Item String)
 postListCompiler pattern template ctxAddon = do
     posts <- recentFirst =<< loadAll pattern
     let ctx =

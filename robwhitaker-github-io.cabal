@@ -17,7 +17,7 @@ executable site
   hs-source-dirs:   src
   main-is:          Site.hs
   build-depends:    base == 4.*
-                  , hakyll == 4.9.*
+                  , hakyll
                   , filepath
                   , directory
                   , yaml
