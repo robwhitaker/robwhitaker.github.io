@@ -4,6 +4,7 @@
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.List (isPrefixOf, isSuffixOf)
+import           Data.Char (isDigit)
 import           System.FilePath.Posix (replaceExtension, takeDirectory, takeBaseName, (</>))
 import qualified GHC.IO.Encoding as E
 import qualified System.Process as Process
@@ -11,7 +12,7 @@ import qualified System.Process as Process
 import           Site.Config
 
 main :: IO ()
-main = do 
+main = do
     E.setLocaleEncoding E.utf8
     hakyll $ do
         cats <- buildCategories "posts/**" (fromCapture "category/*/index.html")
@@ -35,11 +36,11 @@ main = do
             route   $ megaRoute
             compile $ do
                     ext <- getUnderlyingExtension
-                    let compiler = 
+                    let compiler =
                             case ext of
                                 ".html" -> getResourceBody
                                 _       -> pandocCompiler
-                    
+
                     compiler
                         >>= applyAsTemplate defaultContext
                         >>= loadAndApplyTemplate "templates/default.html" defaultContext
@@ -72,9 +73,9 @@ postListCompiler pattern template ctxAddon = do
     posts <- recentFirst =<< loadAll pattern
     let ctx =
             listField "posts" postCtx (return posts) `mappend`
-            ctxAddon                                 `mappend` 
+            ctxAddon                                 `mappend`
             defaultContext
-    
+
     makeItem ""
         >>= loadAndApplyTemplate template ctx
         >>= loadAndApplyTemplate "templates/default.html" ctx
@@ -93,9 +94,16 @@ prettyRoute :: Routes
 prettyRoute = customRoute $ \ident ->
     let path = toFilePath ident
         baseName = takeBaseName path
-    in if baseName /= "index"
-            then takeDirectory path </> baseName </> "index.html"
+    in
+        if baseName /= "index"
+            then takeDirectory path </> stripDate baseName </> "index.html"
             else path
+  where stripDate :: FilePath -> FilePath
+        stripDate path@(y1:y2:y3:y4:'-':m1:m2:'-':d1:d2:'-':rest) =
+            if all isDigit (y1:y2:y3:y4:m1:m2:d1:d2:[])
+                then rest
+                else path
+        stripDate path = path
 
 stripParentDirsRoute :: [FilePath] -> Routes
 stripParentDirsRoute pDirs = customRoute $ \ident ->
@@ -114,7 +122,7 @@ withInternalUrls :: (String -> String) -> String -> String
 withInternalUrls fn =
     withUrls (\str -> if isExternal str then str else fn str)
 
-    
+
 cleanIndex :: String -> String
 cleanIndex url
     | idx `isSuffixOf` url = take (length url - length idx) url
@@ -137,17 +145,17 @@ saveCleanUrlSnapshot snapshot item = do
 ---------- LATEX --------------
 -- A compiler for tex files based on https://github.com/jaspervdj/jaspervdj/blob/master/src/Main.hs#L261-L275
 xelatex :: Compiler (Item TmpFile)
-xelatex = do 
+xelatex = do
     texFilePath <- toFilePath <$> getUnderlying
     texContents <- itemBody <$> getResourceBody
     TmpFile tmpTexPath <- newTmpFile "tmp-tex.tex"
     let sourceDir = takeDirectory texFilePath
         tmpDir    = takeDirectory tmpTexPath
         pdfPath   = replaceExtension tmpTexPath "pdf"
-    
+
     unsafeCompiler $ do
         writeFile tmpTexPath texContents
-        _ <- Process.system $ unwords 
+        _ <- Process.system $ unwords
             [ "xelatex"
             , "-halt-on-error"
             , "-output-directory", tmpDir
@@ -156,5 +164,5 @@ xelatex = do
             , ">/dev/null", "2>&1"
             ]
         return ()
-    
+
     makeItem $ TmpFile pdfPath
