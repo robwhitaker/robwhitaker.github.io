@@ -25,6 +25,7 @@ executable site
                   , process
                   , pandoc
                   , pandoc-types
+                  , time
   other-modules:    Site.Config
   ghc-options:      -threaded
   default-language: Haskell2010

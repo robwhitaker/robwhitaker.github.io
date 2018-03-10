@@ -5,6 +5,8 @@ import           Data.Monoid (mappend)
 import           Hakyll
 import           Data.List (isPrefixOf, isSuffixOf)
 import           Data.Char (isDigit)
+import           Data.Time.Clock (getCurrentTime, utctDay)
+import           Data.Time.Calendar (toGregorian)
 import           System.FilePath.Posix (replaceExtension, takeDirectory, takeBaseName, (</>))
 import qualified GHC.IO.Encoding as E
 import qualified System.Process as Process
@@ -14,6 +16,8 @@ import           Site.Config
 main :: IO ()
 main = do
     E.setLocaleEncoding E.utf8
+    (year',_,_) <- getCurrentTime >>= return . toGregorian . utctDay
+    let ?year = show year'
     hakyll $ do
         cats <- buildCategories "posts/**" (fromCapture "category/*/index.html")
         let ?categories = cats
@@ -42,8 +46,8 @@ main = do
                                 _       -> pandocCompiler
 
                     compiler
-                        >>= applyAsTemplate defaultContext
-                        >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                        >>= applyAsTemplate baseCtx
+                        >>= loadAndApplyTemplate "templates/default.html" baseCtx
                         >>= cleanupUrls
 
         match "posts/**" $ do
@@ -68,13 +72,13 @@ main = do
 
 
 --------- COMPILERS -----------
-postListCompiler :: (?categories :: Tags) => Pattern -> Identifier -> Context String -> Compiler (Item String)
+postListCompiler :: (?categories :: Tags, ?year :: String) => Pattern -> Identifier -> Context String -> Compiler (Item String)
 postListCompiler pattern template ctxAddon = do
     posts <- recentFirst =<< loadAll pattern
     let ctx =
             listField "posts" postCtx (return posts) `mappend`
             ctxAddon                                 `mappend`
-            defaultContext
+            baseCtx
 
     makeItem ""
         >>= loadAndApplyTemplate template ctx
@@ -82,11 +86,16 @@ postListCompiler pattern template ctxAddon = do
         >>= cleanupUrls
 
 ---------- CONTEXTS -----------
-postCtx :: (?categories :: Tags) => Context String
+postCtx :: (?categories :: Tags, ?year :: String) => Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     constField "isPost" "true" `mappend`
     categoryField "category" ?categories `mappend`
+    baseCtx
+
+baseCtx :: (?year :: String) => Context String
+baseCtx =
+    constField "year" ?year `mappend`
     defaultContext
 
 ----------- ROUTES ------------
