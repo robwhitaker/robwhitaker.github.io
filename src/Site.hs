@@ -3,7 +3,7 @@
 
 import           Data.Monoid (mappend)
 import           Hakyll
-import           Data.List (isPrefixOf, isSuffixOf)
+import           Data.List (isPrefixOf, isSuffixOf, intercalate)
 import           Data.Char (isDigit)
 import           Data.Time.Clock (getCurrentTime, utctDay)
 import           Data.Time.Calendar (toGregorian)
@@ -93,10 +93,18 @@ postCtx =
     categoryField "category" ?categories `mappend`
     baseCtx
 
-baseCtx :: (?year :: String) => Context String
+baseCtx :: (?categories :: Tags, ?year :: String) => Context String
 baseCtx =
     constField "year" ?year `mappend`
+    categoriesCtx           `mappend`
     defaultContext
+
+categoriesCtx :: (?categories :: Tags) => Context String
+categoriesCtx = field "categories" $ \_ -> renderTags
+    (\tag url count _ _ -> concat [ "<a href=\"", url, "\">", tag, "(", show count, ")</a>" ])
+    (intercalate " · ")
+    ?categories
+
 
 ----------- ROUTES ------------
 prettyRoute :: Routes

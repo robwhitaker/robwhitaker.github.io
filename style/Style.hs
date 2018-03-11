@@ -169,7 +169,7 @@ footerCss theme =
         fontSize (px 14)
         clear both
 
-        p ? marginTop (px 3)
+        p ? margin (em 0.6) (em 0) (em 0.6) (em 0)
 
         ".social-buttons" ? do
             a ? margin (px 5) (px 5) (px 5) (px 5)
