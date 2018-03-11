@@ -16,6 +16,7 @@ import           Site.Config
 main :: IO ()
 main = do
     E.setLocaleEncoding E.utf8
+    config <- readConfig
     (year',_,_) <- getCurrentTime >>= return . toGregorian . utctDay
     let ?year = show year'
     hakyll $ do
@@ -73,15 +74,7 @@ main = do
             route   $ idRoute
             compile $ do
                 posts <- fmap (take 10) $ recentFirst =<< loadAllSnapshots "posts/**" "postSnapshot"
-                renderRss
-                    (FeedConfiguration -- TODO: move this into config w/ real info
-                        "robwhitaker.com blog"
-                        "A simple RSS feed for the blog"
-                        "Rob Whitaker"
-                        "robjameswhitaker@gmail.com"
-                        "http://robwhitaker.com")
-                    postCtx
-                    posts
+                renderRss (feedConfig config) postCtx posts
 
 
 
@@ -108,6 +101,7 @@ postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     constField "isPost" "true" `mappend`
     categoryField "category" ?categories `mappend`
+    bodyField "description" `mappend`
     mapContext cleanIndex (urlField "url") `mappend` -- override "url" field in baseCtx with cleaned up URL
     baseCtx
 
@@ -122,7 +116,6 @@ categoriesCtx = field "categories" $ \_ -> renderTags
     (\tag url count _ _ -> concat [ "<a href=\"", url, "\">", tag, "(", show count, ")</a>" ])
     (intercalate " · ")
     ?categories
-
 
 ----------- ROUTES ------------
 prettyRoute :: Routes

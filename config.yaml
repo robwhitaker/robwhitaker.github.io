@@ -1,2 +1,8 @@
 ---
+feedConfig:
+    feedTitle: Rob's Blog
+    feedDescription: bleh
+    feedAuthorName: Rob Whitaker
+    feedAuthorEmail: robjameswhitaker@gmail.com
+    feedRoot: http://robwhitaker.com
 ...
