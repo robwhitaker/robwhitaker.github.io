@@ -54,6 +54,7 @@ main = do
             route $ megaRoute
             compile $ pandocCompiler
                 >>= loadAndApplyTemplate "templates/post.html"    postCtx
+                >>= saveSnapshot "postSnapshot"
                 >>= loadAndApplyTemplate "templates/default.html" postCtx
                 >>= cleanupUrls
 
@@ -67,6 +68,22 @@ main = do
             compile $ postListCompiler "posts/**" "templates/post-list.html" $
                         constField "title" "Home"  `mappend`
                         constField "isHome" "true"
+
+        create ["feed.xml"] $ do
+            route   $ idRoute
+            compile $ do
+                posts <- fmap (take 10) $ recentFirst =<< loadAllSnapshots "posts/**" "postSnapshot"
+                renderRss
+                    (FeedConfiguration -- TODO: move this into config w/ real info
+                        "robwhitaker.com blog"
+                        "A simple RSS feed for the blog"
+                        "Rob Whitaker"
+                        "robjameswhitaker@gmail.com"
+                        "http://robwhitaker.com")
+                    postCtx
+                    posts
+
+
 
         match "templates/*" $ compile templateBodyCompiler
 
@@ -91,6 +108,7 @@ postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     constField "isPost" "true" `mappend`
     categoryField "category" ?categories `mappend`
+    mapContext cleanIndex (urlField "url") `mappend` -- override "url" field in baseCtx with cleaned up URL
     baseCtx
 
 baseCtx :: (?categories :: Tags, ?year :: String) => Context String
@@ -153,11 +171,6 @@ cleanupUrls :: Item String -> Compiler (Item String)
 cleanupUrls item = return item
         >>= stripIndexUrls
         >>= relativizeUrls
-
-saveCleanUrlSnapshot :: Snapshot -> Item String -> Compiler (Item String)
-saveCleanUrlSnapshot snapshot item = do
-    saveSnapshot snapshot =<< stripIndexUrls item
-    return item
 
 ---------- LATEX --------------
 -- A compiler for tex files based on https://github.com/jaspervdj/jaspervdj/blob/master/src/Main.hs#L261-L275

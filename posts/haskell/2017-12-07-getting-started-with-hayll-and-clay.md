@@ -1,5 +1,6 @@
 ---
 title: Getting Started With Hakyll and Clay
+description: lots of headaches
 ---
 
 Guess I'll take notes... in post form!
@@ -41,7 +42,7 @@ I'll have to see if I did anything weird later.
 
 Now I'm getting the commitBuffer message for this file. It's breaking on punctuation... like this line would have already broken it twice.
 
-Tried specifying to GHC to use UTF-8. 
+Tried specifying to GHC to use UTF-8.
 
 ```haskell
 import System.IO (hSetEncoding, stdout, utf8)
@@ -86,11 +87,11 @@ Luckily, we can use `applyAsTemplate` to handle all those templating variables i
 ```haskell
 compile $ do
         ext <- getUnderlyingExtension
-        let compiler = 
+        let compiler =
                 case ext of
                     ".html" -> getResourceBody
                     _       -> pandocCompiler
-        
+
         compiler
             >>= applyAsTemplate defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext

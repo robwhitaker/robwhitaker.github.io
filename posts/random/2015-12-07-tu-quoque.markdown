@@ -1,5 +1,6 @@
 ---
 title: Tu Quoque
+description: tu quoque brutus
 author: Julius
 ---
 
