@@ -14,18 +14,18 @@ import           Data.Monoid ((<>))
 import           Style.Theme
 
 printCss :: Theme -> Bool -> (Theme -> Css) -> IO ()
-printCss theme printCompact = 
-    if printCompact 
+printCss theme printCompact =
+    if printCompact
         then T.putStrLn . renderWith compact [] . ($ theme)
         else putCss . ($ theme)
 
 main :: IO ()
 main = printCss lightTheme False stylesheet
-    
+
 stylesheet :: Theme -> Css
 stylesheet theme = do
     star ? boxSizing borderBox
-    
+
     (body <> html) ? do
         color (mainTextColor theme)
         fontSize (px 20)
@@ -42,9 +42,9 @@ stylesheet theme = do
         minHeight (pct 100)
         padding (em 0.5) (em 0.5) (em 0.5) (em 0.5)
         backgroundColor (containerBgColor theme)
-        
+
         headerCss theme
-        footerCss theme 
+        footerCss theme
         codeHighlightingCss (codeTheme theme)
         postList theme
 
@@ -60,25 +60,25 @@ stylesheet theme = do
         span # ".no-space" ? fontSize (px 0)
         span # ".no-br" ? whiteSpace nowrap
         code ? fontSize (px 16)
-        
-        (h1 <> h2 <> h3 <> h4 <> h5 <> h6) ? do 
+
+        (h1 <> h2 <> h3 <> h4 <> h5 <> h6) ? do
             color (highlightColor theme)
             fontWeight normal
             margin (em 0.3) (em 0) (em 0.3) (em 0)
-        
+
         h1 ? do
             fontSize (px 36)
-        
-        h2 ? do 
+
+        h2 ? do
             fontSize (px 32)
             ".big" & fontSize (px 36)
         h3 ? fontSize (px 28)
-        
+
         (h1 # ".post-title" <> h1 # ".page-title") ? do
             color black
             fontWeight bold
             margin (em 0.2) (em 0) (em 0) (em 0)
-        
+
         h1 # ".post-title" ? fontSize (px 50)
 
         ".post-info" ? do
@@ -87,7 +87,7 @@ stylesheet theme = do
             margin (em 0.25) (em 0) (em 1) (em 0)
 
 postList :: Theme -> Css
-postList theme = 
+postList theme =
     ul # ".post-list" ? do
         listStyleType none
         paddingLeft (px 0)
@@ -98,7 +98,7 @@ postList theme =
             a # ".post-title" ? fontSize (px 28)
 
 headerCss :: Theme -> Css
-headerCss theme = 
+headerCss theme =
     header ? do
         fontFamily ["Inconsolata"] [monospace]
         fontSize (px 20)
@@ -108,7 +108,7 @@ headerCss theme =
         ".kw" ? do
             color (highlightColor theme)
             fontWeight bolder
-        
+
         h1 # ".name-logo" ? do
             fontSize (px 34)
             fontWeight bold
@@ -146,21 +146,21 @@ headerCss theme =
                     width (px 0)
                     backgroundColor (containerBgColor theme)
                     boxShadow (px 2) (px 5) (px 10) black
-                    transitions 
-                        [ ("opacity", sec 0.4, ease, sec 0)             
-                        , ("width", sec 0.2, ease, sec 0)      
+                    transitions
+                        [ ("opacity", sec 0.4, ease, sec 0)
+                        , ("width", sec 0.2, ease, sec 0)
                         ]
 
                     a ? do
                         display block
                         textAlign center
 
-                hover & "#dropdown-items" ? do 
+                hover & "#dropdown-items" ? do
                     width (px 120)
                     opacity 100
 
 footerCss :: Theme -> Css
-footerCss theme = 
+footerCss theme =
     footer ? do
         marginTop (em 1)
         borderTop solid (px 1) (dividerColor theme)
@@ -209,16 +209,22 @@ footerCss theme =
                 i ? visibility hidden
 
 codeHighlightingCss :: CodeTheme -> Css
-codeHighlightingCss cTheme =     
+codeHighlightingCss cTheme =
     pre ? do
         backgroundColor (bgColor cTheme)
         color (textColor cTheme)
         padding (em 1) (em 1) (em 1) (em 1)
         overflow auto
-        
+
         code ? do
             fontSize (px 18)
             fontFamily ["Inconsolata"] [monospace]
+
+            a ? do
+                color inherit
+                fontWeight inherit
+
+                hover & textDecoration none
 
             ".kw" ? color (kwColor cTheme)
 
