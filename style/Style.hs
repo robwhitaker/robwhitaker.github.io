@@ -87,7 +87,7 @@ stylesheet theme = do
             margin (em 0.25) (em 0) (em 1) (em 0)
 
 postList :: Theme -> Css
-postList theme =
+postList theme = do
     ul # ".post-list" ? do
         listStyleType none
         paddingLeft (px 0)
@@ -96,6 +96,16 @@ postList theme =
             margin (em 1) (em 0) (em 1) (em 0)
 
             a # ".post-title" ? fontSize (px 28)
+
+    ".page-navigation" ? do
+        textAlign center
+        marginTop (em 2.5)
+        fontSize (px 18)
+
+        a ? display inlineBlock
+
+        a # ".prev" ? float floatLeft
+        a # ".next" ? float floatRight
 
 headerCss :: Theme -> Css
 headerCss theme =

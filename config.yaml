@@ -1,4 +1,5 @@
 ---
+postsPerPage: 2
 feedConfig:
     feedTitle: Rob's Blog
     feedDescription: bleh

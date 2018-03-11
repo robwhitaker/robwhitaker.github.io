@@ -13,7 +13,8 @@ import           Data.Aeson
 import           GHC.Generics
 
 data Config = Config
-    { feedConfig :: FeedConfiguration
+    { postsPerPage :: Int
+    , feedConfig :: FeedConfiguration
     } deriving (Generic)
 
 instance FromJSON Config

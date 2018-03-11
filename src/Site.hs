@@ -7,6 +7,7 @@ import           Data.List (isPrefixOf, isSuffixOf, intercalate)
 import           Data.Char (isDigit)
 import           Data.Time.Clock (getCurrentTime, utctDay)
 import           Data.Time.Calendar (toGregorian)
+import           Control.Monad (liftM)
 import           System.FilePath.Posix (replaceExtension, takeDirectory, takeBaseName, (</>))
 import qualified GHC.IO.Encoding as E
 import qualified System.Process as Process
@@ -20,14 +21,32 @@ main = do
     (year',_,_) <- getCurrentTime >>= return . toGregorian . utctDay
     let ?year = show year'
     hakyll $ do
-        cats <- buildCategories "posts/**" (fromCapture "category/*/index.html")
+        let categoryPath = (</>) "category"
+        cats <- buildCategories "posts/**" (fromCapture . fromGlob $ categoryPath "*" </> "index.html")
         let ?categories = cats
 
-        tagsRules cats $ \cat pattern -> do
-            route idRoute
-            compile $ postListCompiler pattern "templates/category.html" $
+        tagsRules cats $ \cat pattern ->
+            createPagination
+                (postsPerPage config)
+                pattern
+                (categoryPath cat)
+                ""
+                (\_ pattern' paginateCtx ->
+                    postListCompiler pattern' "templates/category.html" $
                         constField "title" cat `mappend`
-                        constField "isHome" "true"
+                        paginateCtx            `mappend`
+                        constField "isHome" "true")
+
+        createPagination
+                (postsPerPage config)
+                "posts/**"
+                ""
+                "p"
+                (\_ pattern paginateCtx ->
+                    postListCompiler pattern "templates/post-list.html" $
+                        constField "title" "Home"  `mappend`
+                        paginateCtx                 `mappend`
+                        constField "isHome" "true")
 
         match "static/img/*" $ do
             route   idRoute
@@ -63,12 +82,6 @@ main = do
         -- match "static/resume/resume.tex" $ do
         --     route   $ constRoute "downloads/robertjwhitaker-resume.pdf"
         --     compile $ xelatex
-
-        create ["index.html"] $ do
-            route   $ idRoute
-            compile $ postListCompiler "posts/**" "templates/post-list.html" $
-                        constField "title" "Home"  `mappend`
-                        constField "isHome" "true"
 
         create ["feed.xml"] $ do
             route   $ idRoute
@@ -189,3 +202,19 @@ xelatex = do
         return ()
 
     makeItem $ TmpFile pdfPath
+
+--------- PAGINATION ----------
+createPagination :: Int -> Pattern -> FilePath -> FilePath -> (Int -> Pattern -> Context a -> Compiler (Item String)) -> Rules ()
+createPagination postsPerPage pattern prefix pageNumDelim compiler = do
+    pagination <- buildPaginateWith
+        (liftM (paginateEvery postsPerPage) . sortRecentFirst)
+        pattern
+        (\n -> fromFilePath $ (</>) prefix $
+            if n == 1
+                then "index.html"
+                else pageNumDelim </> show n </> "index.html")
+    paginateRules pagination $ \n pattern' -> do
+        route idRoute
+        compile $
+            let paginateCtx = paginateContext pagination n
+            in compiler n pattern' paginateCtx

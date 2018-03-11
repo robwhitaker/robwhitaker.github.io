@@ -1,8 +1,29 @@
 <ul class="post-list">
     $for(posts)$
         <li>
-            <a href="$url$" class="post-title">$title$</a> 
+            <a href="$url$" class="post-title">$title$</a>
             $partial("templates/post-metadata.html")$
         </li>
     $endfor$
 </ul>
+
+<div class="page-navigation">
+    $if(previousPageNum)$
+        <a class="prev" href="$previousPageUrl$">
+    $else$
+        <a class="prev" style="visibility:hidden">
+    $endif$
+            <i class="fa fa-arrow-left"></i>
+            Newer Entries
+        </a>
+    <span class="page-num">Page $currentPageNum$ of $numPages$</span>
+    $if(nextPageNum)$
+        <a class="next" href="$nextPageUrl$">
+    $else$
+        <a class="next" style="visibility:hidden">
+    $endif$
+            Older Entries
+            <i class="fa fa-arrow-right"></i>
+        </a>
+    $endif$
+</div>
