@@ -9,28 +9,90 @@
             font-family: "Trebuchet MS", sans-serif;
             font-size: 18px;
             padding: 0.5em 2em;
+            -webkit-transition: 0.25s;
+            -o-transition: 0.25s;
+            transition: 0.25s;
+        }
+
+        h1 {
+            margin-bottom: 0;
         }
 
         a {
             color: blue;
             text-decoration: none;
+            cursor: pointer;
         }
 
         a:hover {
             text-decoration: underline;
         }
+
+        body.dark {
+            background-color: #111;
+            -webkit-transform: rotateY(180deg) rotateZ(5deg);
+                    transform: rotateY(180deg) rotateZ(5deg);
+            -webkit-transform-style: preserve-3d;
+                    transform-style: preserve-3d;
+        }
+
+        a#toggle-dark {
+            font-size: 15px;
+        }
+
+        div.todo {
+            -webkit-transform: rotateY(180deg) rotateZ(-5deg);
+                    transform: rotateY(180deg) rotateZ(-5deg);
+            display: none;
+        }
+
+        body.dark div.todo {
+            color: red;
+            display: block;
+        }
+
+        body.dark span.hl {
+            color: white;
+        }
     </style>
 </head>
 <body>
+<!-- JIP & KARIS:
+
+Sometimes the first thing is the best thing, no ifs, ands, or buts about it.
+
+Parents always said swearing was obscene, rude, and detestible.
+I swear!
+Using nothing but 1 curse, others relax nicely!
+
+-->
 <h1>Rob Whitaker</h1>
+<a id="toggle-dark">(toggle dark mode)</a>
 
-<p>My name is <strong>Rob Whitaker</strong>, and I am a developer, writer, and musician currently employed as a software engineer at IBM. Previously I worked as a front-end web developer at the start-up, Unlockable. I love working with functional languages.</p>
+<div class="todo">TODO: fix dark mode</div>
 
-<p>I am always busy with a side project or seventeen at any given moment. These range from writing my interactive web serial novel to developing a custom reader application in Elm (or a CMS in PureScript) to composing a waltz for an animation on my keyboard. Sometimes I take a break from my usual side projects to join a hackathon or a game jam or a 24-hour short story competition. In November, I write like a maniac for NaNoWriMo.</p>
+<p>My name is <strong>Rob Whitaker</strong>, and I am a developer, writer, and musi<span class="hl">c</span>ian currently employed as a software engineer at IBM. Previously I worked as a front-end web developer at the start-up, Unlockable. I love working wit<span class="hl">h</span> functional languag<span class="hl">e</span>s.</p>
 
-<p>I am also a fan of diners, pie, coffee, coffee and pie at diners, typewriters, playing the piano and guitar, reading, gaming, listening to music, and sometimes longboarding.</p>
+<p>I am always busy with a side proje<span class="hl">c</span>t or seventeen at any given moment. These range from writing my interactive web serial novel to developing a custom reader application in Elm (or a CMS in PureScript) to composing a waltz for an animation on my <span class="hl">k</span>eyboard. Sometimes I take a break from my usual side projec<span class="hl">t</span>s to join a hackat<span class="hl">h</span>on or a gam<span class="hl">e</span> jam or a 24-hour short <span class="hl">s</span>tory competition. In N<span class="hl">o</span>vember, I write like a maniac for NaNoWriMo.</p>
+
+<p>I am also a fan of diners, pie, coffee, coffee and pie at diners, typewriters, playing the piano and g<span class="hl">u</span>itar, <span class="hl">r</span>eading, gaming, listening to musi<span class="hl">c</span>, and sometim<span class="hl">e</span>s longboarding.</p>
 
 <p><a href="https://github.com/robwhitaker">GitHub</a></p>
+<script>
+    var isDark = false;
+    var $darkToggle = document.getElementById("toggle-dark");
+
+    function toggleDarkMode() {
+        if(isDark) {
+            document.body.classList = ""
+            isDark = false;
+        } else {
+            document.body.classList = "dark";
+            isDark = true;
+        }
+    }
+
+    $darkToggle.addEventListener("click", toggleDarkMode);
+</script>
 </body>
 </html>
-
